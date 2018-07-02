@@ -1,7 +1,11 @@
 ---
 title: "K-means"
-output: html_document
+output: md
 ---
+```{r}
+library(knitr)
+knit("K-means(R_ver).Rmd")
+```
 
 
 # Clustering
@@ -58,7 +62,7 @@ k-평균은 클러스터 수에 매우 민감하다. k가 매우 크면 클러�
 ## 데이터 수집
 
 ```{r}
-teens = read.csv('snsdata.csv')
+teens <-  read.csv('~/Desktop/Machine-Learning-with-R-datasets/snsdata.csv')
 str(teens)
 ```
 

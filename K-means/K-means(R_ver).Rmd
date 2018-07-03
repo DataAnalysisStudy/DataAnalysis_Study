@@ -1,11 +1,11 @@
 ---
 title: "K-means"
-output: md
+output:
+  md_document: default
+  keep_md: default
 ---
-```{r}
-library(knitr)
-knit("K-means(R_ver).Rmd")
-```
+
+
 
 
 # Clustering

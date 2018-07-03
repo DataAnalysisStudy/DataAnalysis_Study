@@ -65,23 +65,11 @@ k-평균은 클러스터 수에 매우 민감하다. k가 매우 크면 클러�
 
 ```r
 teens = read.csv('snsdata.csv')
-```
-
-```
-## Warning in file(file, "rt"): cannot open file 'snsdata.csv': No such file
-## or directory
-```
-
-```
-## Error in file(file, "rt"): cannot open the connection
-```
-
-```r
 str(teens)
 ```
 
 ```
-## 'data.frame':	30000 obs. of  43 variables:
+## 'data.frame':	30000 obs. of  40 variables:
 ##  $ gradyear    : int  2006 2006 2006 2006 2006 2006 2006 2006 2006 2006 ...
 ##  $ gender      : Factor w/ 2 levels "F","M": 2 1 2 1 NA 1 1 2 1 1 ...
 ##  $ age         : num  19 18.8 18.3 18.9 19 ...
@@ -122,9 +110,6 @@ str(teens)
 ##  $ death       : int  0 0 1 0 0 0 0 0 0 0 ...
 ##  $ drunk       : int  0 0 0 0 1 1 0 0 0 0 ...
 ##  $ drugs       : int  0 0 0 0 1 0 0 0 0 0 ...
-##  $ female      : num  0 1 0 1 0 1 1 0 1 1 ...
-##  $ no_gender   : num  0 0 0 0 1 0 0 0 0 0 ...
-##  $ cluster     : int  5 3 5 5 4 5 1 5 5 3 ...
 ```
 
 ### 결측값 제거
@@ -144,8 +129,8 @@ summary(teens$age)
 ```
 
 ```
-##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   13.03   16.28   17.24   17.24   18.21   20.00
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+##   3.086  16.312  17.287  17.994  18.259 106.927    5086
 ```
 na는 총 5086개가 존재한다. 또한, 최대 최소도 상식적이지 않다. 3세나 106세는 고등학교 다니지 않는다.
 이를 방지하고자 나이를 제한한다.
@@ -157,8 +142,8 @@ summary(teens$age)
 ```
 
 ```
-##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   13.03   16.28   17.24   17.24   18.21   20.00
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+##   13.03   16.30   17.27   17.25   18.22   20.00    5523
 ```
 
 ## 결측치 더미 코딩

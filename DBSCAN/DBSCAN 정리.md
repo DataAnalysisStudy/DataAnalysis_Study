@@ -22,6 +22,7 @@
 2. 복잡한 형상도 찾는다.
 3. 어떤 클래스에도 속하지 않는 포인트 구분이 가능하다.
 4. 병합 군집이나 k-평균보다는 느리지만 큰 데이터셋에도 적용 가능하다.
+ * Kmeans vs. DBSCAN: https://arogozhnikov.github.io/2017/07/10/opera-clustering.html
 
 #### 알고리즘
 1. 무작위로 포인트 선택

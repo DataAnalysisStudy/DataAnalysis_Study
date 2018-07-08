@@ -23,6 +23,20 @@
 3. 어떤 클래스에도 속하지 않는 포인트 구분이 가능하다.
 4. 병합 군집이나 k-평균보다는 느리지만 큰 데이터셋에도 적용 가능하다.
  * Kmeans vs. DBSCAN: https://arogozhnikov.github.io/2017/07/10/opera-clustering.html
+ 
+ 1. 일반적인 K-means clustering
+ ![clustering-kmeans-circles](https://user-images.githubusercontent.com/35090655/42416567-60ffc916-82ad-11e8-909e-dd6e5a3a9a7d.gif)
+ 
+ 2. Smile 모양의 데이터 포인트를 K-means로 군집
+![clustering-kmeans-smiley2](https://user-images.githubusercontent.com/35090655/42416568-64345af2-82ad-11e8-9d57-7cc24e4c7020.gif)
+
+**K-means clustering**의 경우 Smile 모양이라도 중심점을 찾고 중심점을 기준으로 군집하므로 복잡한 형상인 Smile 모양을 정확히 분류하기 어렵다.
+
+3. Smile 모양의 데이터 포인트를 DBSCAN으로 군집
+![clustering-dbscan-smiley3](https://user-images.githubusercontent.com/35090655/42416569-68a68588-82ad-11e8-966e-6234b46bdb9a.gif)
+
+**DBSCAN**의 경우 noise를 활용하며 클러스터를 구분하는 동시에 핵심포인트를 찾고 계속해서 이웃한 모든 포인트를 탐색하여 군집하므로 복잡한 형상이라도 정확한 인식이 가능하다.
+
 
 #### 알고리즘
 1. 무작위로 포인트 선택

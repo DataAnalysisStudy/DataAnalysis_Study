@@ -7,7 +7,6 @@ MaxMinScale <- function(data){
   return( (data - min(data))/(max(data) - min(data)) )  
 }
 
-
 coord_radar <- function (theta = "x", start = 0, direction = 1) 
 {
   theta <- match.arg(theta, c("x", "y"))

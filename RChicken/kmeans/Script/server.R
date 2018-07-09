@@ -2,7 +2,7 @@ library(shiny)
 library(devtools)
 library(rCharts)
 
-## Data 전처리
+### Data 전처리
 data(iris)
 data(ruspini, package = "cluster")
 data(Glass, package = "mlbench")

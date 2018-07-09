@@ -2,7 +2,7 @@ library(shiny)
 library(rCharts)
 
 
-# Define UI for application that draws a histogram
+## Define UI for application that draws a histogram
 shinyUI(pageWithSidebar( 
     
     headerPanel("K-Means"), 

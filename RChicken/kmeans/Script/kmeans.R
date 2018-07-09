@@ -7,7 +7,6 @@ findCluster <- function(data, nc = 15){
   plot(2:nc, wss[2:nc], type = 'b')
 }
 
-
 ########## Kmeans 기본 알고리즘 Forgy
 kmeans <- function(data, k){
   

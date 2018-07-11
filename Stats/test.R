@@ -1,27 +1,29 @@
+gps1 <- read.csv('gps_u00.csv')
+str(gps1)
+install.packages('ggmap')
+library(ggmap)
+mapImageData <- get_googlemap(center = c(lon = median(gps1$longitude), lat = median(gps1$latitude)),
+                              zoom = 8,
+                              # size = c(500, 500),
+                              maptype = c("terrain"))
+ggmap(mapImageData,
+      extent = "device") + # takes out axes, etc.
+  geom_point(aes(x = longitude,
+                 y = latitude),
+             data = gps1,
+             colour = "red",
+             size = 1,
+             pch = 20)
 
-a <- read.table("P052.txt",header = T)
-a
-cov(a)
-cor(a)
+gps2 <- read.csv('gps_u01.csv')
+str(gps2)
 
-
-a_inches <- data.frame("Husband_inch" = a$Husband*2.54, "Wife_inch"=a$Wife*2.54) 
-a_inches
-cov(a)
-cov(a_inches)
-cor(a)
-cor(a_inches)
-cov(a_inches) / cov(a)
-
-a_5cent <- data.frame("Husband_5" = a$Husband, "Wife_5" = a$Husband -5)
-a_5cent
-
-cor(a)
-cor(a_5cent)
-
-fit_H <- lm(Husband ~ Wife, data = a)
-summary(fit_H)
-fit_W <- lm(Wife ~ Husband, data = a)
-summary(fit_W)
-
+ggmap(mapImageData,
+      extent = "device") + # takes out axes, etc.
+  geom_point(aes(x = longitude,
+                 y = latitude),
+             data = gps2,
+             colour = "green",
+             size = 1,
+             pch = 20)
 

@@ -177,7 +177,8 @@ EM <- function(data, dimension = dimension){
       if(i == dimension){
        
         colnames(fx) <- colnames(mu)
-        tou <- data.frame(t(apply(fx, 1, function(rowData){
+        
+        tou <- data.frame(t(apply(t(t(fx) * parameter$tou), 1, function(rowData){
           rowData/sum(rowData)
           })))
         

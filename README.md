@@ -26,7 +26,8 @@
       b. 3주차
       
          i. 케글이나 공공데이터 중 스터디원이 원하는 데이터를 선정 후 분석 후 발표
-           - Dartmouth University 'student_life' dataset에서 gps 데이터를 활용하여 kmeans clustering, dbscan 진행
+           - Dartmouth University 'student_life' dataset gps 데이터를 활용
+           - K-means clustering, DBSCAN 활용하여 위치기반 군집화 진행
          ii. 자신이 목적에 맞는 데이터 수집 기법/도구(로그스태쉬, 엘라스틱서치, 크롤링 등)를 이용하여 데이터 수집 후 간단하게 분석 
          iii. 개인 발표 후 잘된점, 부족한점, 개선점 등을 토의
          

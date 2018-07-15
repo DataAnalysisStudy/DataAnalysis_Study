@@ -23,8 +23,7 @@ str(gps)
 ```{r}
 library(fpc)
 n <- 4316
-x <- cbind(runif(10, 0, 10)+rnorm(n, sd=0.2), runif(10, 0, 10)+rnorm(n,
-    sd=0.2))
+x <- cbind(runif(10, 0, 10)+rnorm(n, sd=0.2), runif(10, 0, 10)+rnorm(n,sd=0.2))
 a <- dbscan(gps[,4:5],eps = 0.45,MinPts = 10)
 gps[4:5]
 head(a)
@@ -37,8 +36,8 @@ center
 ```{r}
 install.packages('ggmap')
 library(ggmap)
-map.usa <- get_map('New Hampshire',zoom = 12)
-ggmap(map.usa)
+map.usa <- get_map('New Hampshire', zoom = 12)
+ggmap(map.usa) 
 head(gps)
 
 library(dplyr)
@@ -56,8 +55,7 @@ ggmap(getmap)
 
 gps
 cent <- sapply(gps[4:5], mean)
-map <- ggmap(get_googlemap(center = cent,
-zoom=5, maptype='roadmap', color='bw',scale = '2'), extent='device')
+map <- ggmap(get_googlemap(center = cent, zoom=5, maptype='roadmap', color='bw',scale = '2'), extent='device')
 map
 
 map <- get_map(location= 'New Hampshire', zoom=7, maptype='roadmap', color='bw')

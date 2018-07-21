@@ -27,63 +27,132 @@ rm(x1, x2, x3, y1, y2, y3, x, y)
 ####### 원 중심과 sigma 1, 2 등고선 그리기 
 
 graph <- function(dimension){
-  if(dimension == 2){
-    plot_ly(data, x = ~x, y = ~y, color = ~class, type = "scatter") %>%
-      add_trace(x = ~x, y = ~y, color = ~class, data = parameter, type = "scatter") %>%
-      layout(shapes = list(
-        list(xref = 'x', yref = 'y', 
-             x0 = parameter$x[1] - parameter$sigma[1], 
-             x1 = parameter$x[1] + parameter$sigma[1], 
-             y0 = parameter$y[1] - parameter$sigma[1],
-             y1 = parameter$y[1] + parameter$sigma[1], 
-             type = "circle", opacity = 0.2,
-             fillcolor = 'rgb(50, 20, 90)', line = list(color = 'rgb(50, 20, 90)')), 
-        list(xref = 'x', yref = 'y', 
-             x0 = parameter$x[2] - parameter$sigma[2], 
-             x1 = parameter$x[2] + parameter$sigma[2], 
-             y0 = parameter$y[2] - parameter$sigma[2],
-             y1 = parameter$y[2] + parameter$sigma[2], 
-             type = "circle", opacity = 0.2,
-             fillcolor = 'rgb(90, 200, 75)', line = list(color = 'rgb(90, 200, 75)'))
-      )
-      )
-  }else if(dimension == 3){
-    plot_ly(data, x = ~x, y = ~y, color = ~class, type = "scatter") %>%
-      add_trace(x = ~x, y = ~y, color = ~class, data = parameter, type = "scatter") %>%
-      layout(shapes = list(
-        list(xref = 'x', yref = 'y', 
-             x0 = parameter$x[1] - parameter$sigma[1], 
-             x1 = parameter$x[1] + parameter$sigma[1], 
-             y0 = parameter$y[1] - parameter$sigma[1],
-             y1 = parameter$y[1] + parameter$sigma[1], 
-             type = "circle", opacity = 0.2,
-             fillcolor = 'rgb(50, 20, 90)', line = list(color = 'rgb(50, 20, 90)')), 
-        list(xref = 'x', yref = 'y', 
-             x0 = parameter$x[2] - parameter$sigma[2], 
-             x1 = parameter$x[2] + parameter$sigma[2], 
-             y0 = parameter$y[2] - parameter$sigma[2],
-             y1 = parameter$y[2] + parameter$sigma[2], 
-             type = "circle", opacity = 0.2,
-             fillcolor = 'rgb(90, 200, 75)', line = list(color = 'rgb(90, 200, 75)')),
-        list(xref = 'x', yref = 'y', 
-             x0 = parameter$x[3] - parameter$sigma[3], 
-             x1 = parameter$x[3] + parameter$sigma[3], 
-             y0 = parameter$y[3] - parameter$sigma[3],
-             y1 = parameter$y[3] + parameter$sigma[3], 
-             type = "circle", opacity = 0.2,
-             fillcolor = 'rgb(140, 130, 20)', line = list(color = 'rgb(140, 130, 20)'))
-      )
-      )
+  
+
+  ## 타원 만들기 
+  lamb <- lapply(covTemp, function(mat) eigen(mat)$value )
+  e <- lapply(covTemp, function(mat) eigen(mat)$vector )
+  
+  elliDat <- data.frame()
+  elliDat2 <- data.frame()
+  
+  for(i in 1:dimension){
+    
+    elliTheta <- seq(-pi, pi, length = 1000)
+    x1 <- sqrt(lamb[[i]][1]) * cos(elliTheta)
+    y1 <- sqrt(lamb[[i]][2]) * sin(elliTheta)
+    x2 <- as.vector(e[[i]][1, ] %*% t(cbind(x1, y1)) + mean(parameter[i, 1]))
+    y2 <- as.vector(e[[i]][2, ] %*% t(cbind(x1, y1)) + mean(parameter[i, 2]))
+    elliDat <- rbind(elliDat, data.frame(x2, y2, "class" = i))
+    
+    x1 <- 2 * sqrt(lamb[[i]][1]) * cos(elliTheta)
+    y1 <- 2 * sqrt(lamb[[i]][2]) * sin(elliTheta)
+    x2 <- as.vector(e[[i]][1, ] %*% t(cbind(x1, y1)) + mean(parameter[i, 1]))
+    y2 <- as.vector(e[[i]][2, ] %*% t(cbind(x1, y1)) + mean(parameter[i, 2]))
+    elliDat2 <- rbind(elliDat2, data.frame(x2, y2, "class" = i))
+    
   }
   
+  plot_ly(data, x = ~x, y = ~y, color = ~as.factor(class), type = "scatter") %>%
+    add_trace(x = ~x2, y = ~y2, data = elliDat[elliDat$class == 1, ], type = "area") %>%
+    add_trace(x = ~x2, y = ~y2, data = elliDat[elliDat$class == 2, ], type = "area") %>%
+    add_trace(x = ~x2, y = ~y2, data = elliDat2[elliDat2$class == 1, ], type = "area") %>%
+    add_trace(x = ~x2, y = ~y2, data = elliDat2[elliDat2$class == 2, ], type = "area")
+  
 }
+# 
+# graph <- function(data, dimension, parameter, cov){
+#   
+#   covTemp <- cov
+#   ## 타원 만들기 
+#   lamb <- lapply(covTemp, function(mat) eigen(mat)$value )
+#   e <- lapply(covTemp, function(mat) eigen(mat)$vector )
+#   
+#   elliDat <- data.frame()
+#   elliDat2 <- data.frame()
+#   
+#   for(i in 1:dimension){
+#     
+#     elliTheta <- seq(-pi, pi, length = 1000)
+#     x1 <- sqrt(lamb[[i]][1]) * cos(elliTheta)
+#     y1 <- sqrt(lamb[[i]][2]) * sin(elliTheta)
+#     x2 <- as.vector(e[[i]][1, ] %*% t(cbind(x1, y1)) + mean(parameter[i, 1]))
+#     y2 <- as.vector(e[[i]][2, ] %*% t(cbind(x1, y1)) + mean(parameter[i, 2]))
+#     elliDat <- rbind(elliDat, data.frame(x2, y2, "class" = i))
+#     
+#     x1 <- 2 * sqrt(lamb[[i]][1]) * cos(elliTheta)
+#     y1 <- 2 * sqrt(lamb[[i]][2]) * sin(elliTheta)
+#     x2 <- as.vector(e[[i]][1, ] %*% t(cbind(x1, y1)) + mean(parameter[i, 1]))
+#     y2 <- as.vector(e[[i]][2, ] %*% t(cbind(x1, y1)) + mean(parameter[i, 2]))
+#     elliDat2 <- rbind(elliDat2, data.frame(x2, y2, "class" = i))
+#     
+#   }
+#   
+#   plot_ly(data, x = ~x, y = ~y, color = ~as.factor(class), type = "scatter") %>%
+#     add_trace(x = ~x2, y = ~y2, data = elliDat[elliDat$class == 1, ], type = "area") %>%
+#     add_trace(x = ~x2, y = ~y2, data = elliDat[elliDat$class == 2, ], type = "area") %>%
+#     add_trace(x = ~x2, y = ~y2, data = elliDat2[elliDat2$class == 1, ], type = "area") %>%
+#     add_trace(x = ~x2, y = ~y2, data = elliDat2[elliDat2$class == 2, ], type = "area")
+#   
+# }
+# 
+# graph <- function(dimension){
+#   if(dimension == 2){
+#     plot_ly(data, x = ~x, y = ~y, color = ~class, type = "scatter") %>%
+#       add_trace(x = ~x, y = ~y, color = ~class, data = parameter, type = "scatter") %>%
+#       layout(shapes = list(
+#         list(xref = 'x', yref = 'y', 
+#              x0 = parameter$x[1] - parameter$sigma[1], 
+#              x1 = parameter$x[1] + parameter$sigma[1], 
+#              y0 = parameter$y[1] - parameter$sigma[1],
+#              y1 = parameter$y[1] + parameter$sigma[1], 
+#              type = "circle", opacity = 0.2,
+#              fillcolor = 'rgb(50, 20, 90)', line = list(color = 'rgb(50, 20, 90)')), 
+#         list(xref = 'x', yref = 'y', 
+#              x0 = parameter$x[2] - parameter$sigma[2], 
+#              x1 = parameter$x[2] + parameter$sigma[2], 
+#              y0 = parameter$y[2] - parameter$sigma[2],
+#              y1 = parameter$y[2] + parameter$sigma[2], 
+#              type = "circle", opacity = 0.2,
+#              fillcolor = 'rgb(90, 200, 75)', line = list(color = 'rgb(90, 200, 75)'))
+#       )
+#       )
+#   }else if(dimension == 3){
+#     plot_ly(data, x = ~x, y = ~y, color = ~class, type = "scatter") %>%
+#       add_trace(x = ~x, y = ~y, color = ~class, data = parameter, type = "scatter") %>%
+#       layout(shapes = list(
+#         list(xref = 'x', yref = 'y', 
+#              x0 = parameter$x[1] - parameter$sigma[1], 
+#              x1 = parameter$x[1] + parameter$sigma[1], 
+#              y0 = parameter$y[1] - parameter$sigma[1],
+#              y1 = parameter$y[1] + parameter$sigma[1], 
+#              type = "circle", opacity = 0.2,
+#              fillcolor = 'rgb(50, 20, 90)', line = list(color = 'rgb(50, 20, 90)')), 
+#         list(xref = 'x', yref = 'y', 
+#              x0 = parameter$x[2] - parameter$sigma[2], 
+#              x1 = parameter$x[2] + parameter$sigma[2], 
+#              y0 = parameter$y[2] - parameter$sigma[2],
+#              y1 = parameter$y[2] + parameter$sigma[2], 
+#              type = "circle", opacity = 0.2,
+#              fillcolor = 'rgb(90, 200, 75)', line = list(color = 'rgb(90, 200, 75)')),
+#         list(xref = 'x', yref = 'y', 
+#              x0 = parameter$x[3] - parameter$sigma[3], 
+#              x1 = parameter$x[3] + parameter$sigma[3], 
+#              y0 = parameter$y[3] - parameter$sigma[3],
+#              y1 = parameter$y[3] + parameter$sigma[3], 
+#              type = "circle", opacity = 0.2,
+#              fillcolor = 'rgb(140, 130, 20)', line = list(color = 'rgb(140, 130, 20)'))
+#       )
+#       )
+#   }
+#   
+# }
 
 
 
 ####### EM
 
 dimension = 2
-
 
 ################# EM 알고리즘 
 
@@ -138,12 +207,12 @@ EM <- function(data, dimension = dimension, elipsions = 0.001){
   covTemp <- lapply(covTemp, as.matrix)
   
   
-  
   ######################################## E Step ####################################
   
   count <- 0
   theta <- c()
-  elipsionsTemp <- elipsions
+  elipsions = 0.0001
+  elipsionsTemp <- elipsions 
   
   #### likelihood 최대화 파라미터 구하기 
   fxCal <- function(data, covTemp){
@@ -170,7 +239,7 @@ EM <- function(data, dimension = dimension, elipsions = 0.001){
       
       if(i == dimension){
         
-        colnames(fx) <- colnames(parameter)[1:dimension]
+        colnames(fx) <- paste0("c", 1:dimension)
         
         tou <- data.frame(t(apply(t(t(fx) * parameter$tou), 1, function(rowData){
           rowData/sum(rowData)
@@ -187,40 +256,46 @@ EM <- function(data, dimension = dimension, elipsions = 0.001){
   while(elipsionsTemp >= elipsions){
     expectation <- fxCal(data, covTemp)
     data$class <- as.factor(apply(expectation$fx, 1, which.max)) ## likelihood가 가장 높은 클러스터 배정
-    theta <- c(theta, sum(expectation$tou * expectation$fx))
+    theta <- c(theta, sum(parameter$tou %*% t(expectation$fx)))
     elipsionsTemp <- ifelse(count == 1, 99999, theta[count] - theta[count - 1])
-    graph(dimension)
+    # graph(data = data[, 1:dimension], dimension = 2, parameter = parameter, cov = covTemp)
+    graph(dimension = 2)
     
     ############# Max Step의 변수 변환 부분
-    parameter[, 1:dimension] <- aggregate(. ~ class, data = data, mean)[, -1] ## mu 변경
+    parameter[, "tou"] <- apply(expectation$tou, 2, mean) ## tou
+    parameter[, 1:dimension] <- t(apply(expectation$tou, 2, function(clusterTou){
+      
+      apply(clusterTou * data[, 1:dimension], 2, function(x){
+        sum(x)/sum(clusterTou)
+      })
+      
+    })) ## mu
     
     covTemp <- list()
+    
     for(j in 1:dimension){
       
-      index <- data$class == j
-      parameter[j, "tou"] <- sum(expectation$tou[index, j])/sum(expectation$tou[, j]) ## tou
-      x_mu <-  t(apply(data[index, 1:dimension], 1, function(rowData){
-        as.matrix(rowData - parameter[j, 1:dimension])
-      })) ## sigma
-      covTemp[[j]] <- (t(expectation$tou[index, j] * x_mu) %*% x_mu)/sum(expectation$tou[index, ])
+      dataTemp <- data[, 1:dimension] - 
+        matrix(unlist(rep(parameter[j, 1:dimension], nrow(data))), ncol = 2, byrow = T)
+      
+      covTemp[[j]] <- t(expectation$tou[, j] * dataTemp) %*% as.matrix(dataTemp)/sum(expectation$tou[, j])
       
     }
+    # parameter[, "sigma"] <- unlist(lapply(covTemp, function(x){
+    #   mean(x * diag(1, dimension))
+    # }))
     
-    parameter$tou <- parameter$tou/sum(parameter$tou) ## tou 정규화 
-    
-    parameter[, "sigma"] <- unlist(lapply(covTemp, function(x){
-      mean(x * diag(1, dimension))
-    }))
-    
-    rm(index)
     rm(j)
   }
   
+  return(list(cluster = data$class, count = count, 
+              parameter = parameter, expectation = expectation,
+              theta = theta, sigma = covTemp))
   
 }
 
-cbind(head(expectation$tou), head(expectation$fx), head(expectation$tou * expectation$fx))
+result <- EM(data = data, dimension = 2, elipsions = 0.00000001)
 
-
-
-graph() ## 그래프로 확인
+result$theta
+data$class <- result$cluster
+graph(data = cbind(data, "class" = result$cluster), dimension = 2, parameter = result$parameter, cov = result$sigma) ## 그래프로 확인

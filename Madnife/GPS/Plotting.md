@@ -65,10 +65,8 @@ bostonPlot <- ggmap(mapImageData) +
 ggsave("180722_Boston_Plot.png", plot = bostonPlot,  dpi = 600) # plot 저장
 ```
 
+![Boston Plot Result]
 
-
-
-
-![output_16_1](https://user-images.githubusercontent.com/35090655/42120184-e06fd8a6-7c51-11e8-8e4e-033a23fc4334.png)
+[Boston Plot Result]: 180722_Boston_Plot.png
 
 

@@ -2,8 +2,8 @@
 # GPS Plotting using R
 R을 활용하여 GPS Data(Latitude, Longitude)를 Google Map에 Dot Plot을 활용하여 Mapping하는 작업 
 
-## Student Life Dataset
-> Dartmouth Univ.에서 학생들의 생활을 다양한(Sensor, EMA, Survey 등) 형태로 수집한 데이터 
+## Dataset
+> Student Life Dataset: Dartmouth Univ.에서 학생들의 생활을 다양한(Sensor, EMA, Survey 등) 형태로 수집한 데이터 
 
 1. Link: http://studentlife.cs.dartmouth.edu/dataset.html
 2. Paper: http://ksuweb.kennesaw.edu/~she4/2015Summer/cs7860/Reading/318p3-wang.pdf

@@ -31,7 +31,11 @@ GPS plotting 하면서 5가지 지역을 이동한 것 확인 (5개 GPS Plot 생
 
 ## Result
 
-### Main Area: Boston
+### [1] Main Area: Boston
+ 
+#### Dataset Preprocessing
+ 1. Timestamp를 Date 형태로 변경
+ 2. subData(Europe, America) 구분 및 boston data 추출
 ```
 library(ggplot2)
 library(ggmap)
@@ -45,15 +49,25 @@ subAmerica <- which(gpsData$latitude<40) # Boston 제외한 나머지 Amrica dat
 boston <- gpsData[-append(subEurope, subAmerica),]
 bostonLabel <- boston[c(1,nrow(boston)),] # Boston Data 시작과 끝 지점 추출
 
+```
+
+#### Google Map Setting
+ 1. 지도 중심(center), 확대 정도(zoom), 지도 형태(maptype) 설정
+```
 mapImageData <- get_googlemap(
   center = c(lon = -71.460885, lat = 42.896127), # 지도 중심 지점 설정
   zoom = 8, # 확대 정도 설정(3 ~ 21). 
   maptype = c("roadmap") # 지도 형태 설정("terrain", "satellite", "roadmap", and "hybrid")
 ) 
+```
 
+#### Plotting
+ 1. ggmap에 ggplot을 붙이는 형태로 진행
+ 2. plot 결과 저장
+```
 bostonPlot <- ggmap(mapImageData) + 
               geom_point(aes(x = boston$longitude, y = boston$latitude, color=boston$time), 
-                         data=boston, size = 3, pch = 20) + # dot plot 설정
+                         data=boston, size = 3, pch = 20) + 
               ggtitle(paste0("Boston GPS Plot\n", bostonLabel$date[1], " ~ ", bostonLabel$date[2])) + # 타이틀 명칭
               labs(x = "Longitude(경도)", y = "Latitude(위도)") + # x, y축 명칭 설정
               geom_label(aes(x=bostonLabel$longitude, y=bostonLabel$latitude, label = c("S", "E")), 
@@ -70,3 +84,5 @@ ggsave("180722_Boston_Plot.png", plot = bostonPlot,  dpi = 600) # plot 저장
 [Boston Plot Result]: 180722_Boston_Plot.png
 
 
+### [2] Sub Area: Europe
+> 작성중입니다...

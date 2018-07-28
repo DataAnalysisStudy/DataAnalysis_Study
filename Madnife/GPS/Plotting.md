@@ -49,6 +49,8 @@ subAmerica <- which(gpsData$latitude<40) # Boston 제외한 나머지 Amrica dat
 boston <- gpsData[-append(subEurope, subAmerica),]
 bostonLabel <- boston[c(1,nrow(boston)),] # Boston Data 시작과 끝 지점 추출
 
+nudgeX <- (max(boston$longitude) - min(boston$longitude))*0.1 # 지도 라벨링과 실제 spot 사이의 간격 조절
+nudgeY <- (max(boston$latitude) - min(boston$latitude))*0.1 # 지도 라벨링과 실제 spot 사이의 간격 조절
 ```
 
 #### Google Map Setting
@@ -71,7 +73,7 @@ bostonPlot <- ggmap(mapImageData) +
               ggtitle(paste0("Boston GPS Plot\n", bostonLabel$date[1], " ~ ", bostonLabel$date[2])) + # 타이틀 명칭
               labs(x = "Longitude(경도)", y = "Latitude(위도)") + # x, y축 명칭 설정
               geom_label(aes(x=bostonLabel$longitude, y=bostonLabel$latitude, label = c("S", "E")), 
-                         data=bostonLabel, nudge_x = 0.25, nudge_y = 0.2) + # 시작과 끝 포인트 라벨 설정
+                         data=bostonLabel, nudge_x = nudgeX, nudge_y = nudgeY) + # 시작과 끝 포인트 라벨 설정
               theme(legend.position = "none", # 범례 제거
                     plot.title = element_text(family = "serif", face = "bold", hjust = 0.5, size = 13, color = "darkblue")) + # 타이틀 설정
               scale_color_gradient(low = "black", high = "red") # dot plot 색상 설정

@@ -100,7 +100,7 @@ nudgeY <- (max(london$latitude) - min(london$latitude))*0.1
 
 mapImageData <- get_googlemap(
   center = c(lon = (min(london$longitude) + nudgeX*5), lat = (min(london$latitude) + nudgeY*5)),
-  zoom = 10,
+  zoom = 10, 
   maptype = c("roadmap")
 )
 
@@ -123,4 +123,107 @@ ggsave("180728_London_Plot.png", plot = londonPlot,  dpi = 600)
 [London Plot Result]: 180728_London_Plot.png
 
 
+#### [2-2] Paris Plotting
 
+```
+europeSub <- europe[which(europe$latitude<50),]
+
+paris <- europeSub[which(europeSub$latitude>48),]
+parisLabel <- paris[c(1,nrow(paris)),]
+
+nudgeX <- (max(paris$longitude) - min(paris$longitude))*0.1
+nudgeY <- (max(paris$latitude) - min(paris$latitude))*0.1
+
+mapImageData <- get_googlemap(
+  center = c(lon = (min(paris$longitude) + nudgeX*5), lat = (min(paris$latitude) + nudgeY*5)),
+  zoom = 11,
+  maptype = c("roadmap")
+)
+
+parisPlot <- ggmap(mapImageData) + 
+             geom_point(aes(x = paris$longitude, y = paris$latitude, color=paris$time), 
+                        data=paris, size = 5, pch = 20) + 
+             ggtitle(paste0("Paris GPS Plot\n", parisLabel$date[1], " ~ ", parisLabel$date[2])) +
+             labs(x = "Longitude(경도)", y = "Latitude(위도)", color = "Date") +
+             geom_label(aes(x=parisLabel$longitude, y=parisLabel$latitude, label = c("S", "E")), 
+                        data=parisLabel, nudge_x = nudgeX, nudge_y = nudgeY) +
+             theme(legend.position = "none", 
+                   plot.title = element_text(family = "serif", face = "bold", hjust = 0.5, size = 13, color = "darkblue")) +
+             scale_color_gradient(low = "black", high = "red")
+
+ggsave("180728_Paris_Plot.png", plot = parisPlot,  dpi = 600)
+```
+
+![Paris Plot Result]
+
+[Paris Plot Result]: 180728_Paris_Plot.png
+
+
+#### [2-3] Venezia Plotting
+
+```
+venezia <- europeSub[which(europeSub$latitude<48),]
+veneziaLabel <- venezia[c(1,nrow(venezia)),]
+
+nudgeX <- (max(venezia$longitude) - min(venezia$longitude))*0.1
+nudgeY <- (max(venezia$latitude) - min(venezia$latitude))*0.1
+
+mapImageData <- get_googlemap(
+  center = c(lon = (min(venezia$longitude) + nudgeX*5), lat = (min(venezia$latitude) + nudgeY*5)),
+  zoom = 13,
+  maptype = c("roadmap")
+)
+
+veneziaPlot <- ggmap(mapImageData) + 
+               geom_point(aes(x = venezia$longitude, y = venezia$latitude, color=venezia$time), 
+                          data=venezia, size = 5, pch = 20) + 
+               ggtitle(paste0("Venezia GPS Plot\n", veneziaLabel$date[1], " ~ ", veneziaLabel$date[2])) +
+               labs(x = "Longitude(경도)", y = "Latitude(위도)", color = "Date") +
+               geom_label(aes(x=veneziaLabel$longitude, y=veneziaLabel$latitude, label = c("S", "E")), 
+                          data=veneziaLabel, nudge_x = nudgeX, nudge_y = nudgeY) +
+               theme(legend.position = "none", 
+                     plot.title = element_text(family = "serif", face = "bold", hjust = 0.5, size = 13, color = "darkblue")) +
+               scale_color_gradient(low = "black", high = "red")
+
+ggsave("180728_Venezia_Plot.png", plot = veneziaPlot,  dpi = 600)
+```
+
+![Venezia Plot Result]
+
+[Venezia Plot Result]: 180728_Venezia_Plot.png
+
+
+
+### [3] Sub Area: America Other Area
+#### [3-1] Washington Plotting
+
+```
+washington <- gpsData[subAmerica,]
+washingtonLabel <- washington[c(1,nrow(washington)),]
+
+nudgeX <- (max(washington$longitude) - min(washington$longitude))*0.1
+nudgeY <- (max(washington$latitude) - min(washington$latitude))*0.1
+
+mapImageData <- get_googlemap(
+  center = c(lon = (min(washington$longitude) + nudgeX*5), lat = (min(washington$latitude) + nudgeY*5)),
+  zoom = 12,
+  maptype = c("roadmap")
+)
+
+washingtonPlot <- ggmap(mapImageData) + 
+                  geom_point(aes(x = washington$longitude, y = washington$latitude, color=washington$time), 
+                             data=washington, size = 5, pch = 20) + 
+                  ggtitle(paste0("Washington GPS Plot\n", washingtonLabel$date[1], " ~ ", washingtonLabel$date[2])) +
+                  labs(x = "Longitude(경도)", y = "Latitude(위도)", color = "Date") +
+                  geom_label(aes(x=washingtonLabel$longitude, y=washingtonLabel$latitude, label = c("S", "E")), 
+                             data=washingtonLabel, nudge_x = nudgeX, nudge_y = nudgeY) +
+                  theme(legend.position = "none", 
+                        plot.title = element_text(family = "serif", face = "bold", hjust = 0.5, size = 13, color = "darkblue")) +
+                  scale_color_gradient(low = "black", high = "red")
+
+ggsave("180728_Washington_Plot.png", plot = washingtonPlot,  dpi = 600)
+```
+
+![Washington Plot Result]
+
+[Washington Plot Result]: 180728_Washington_Plot.png

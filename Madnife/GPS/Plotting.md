@@ -57,7 +57,7 @@ nudgeY <- (max(boston$latitude) - min(boston$latitude))*0.1 # 지도 라벨링�
  1. 지도 중심(center), 확대 정도(zoom), 지도 형태(maptype) 설정
 ```
 mapImageData <- get_googlemap(
-  center = c(lon = -71.460885, lat = 42.896127), # 지도 중심 지점 설정
+  center = c(lon = (min(boston$longitude) + nudgeX*5), lat = (min(boston$latitude) + nudgeY*5)), # 지도 중심 지점 설정(최대, 최소의 중간)
   zoom = 8, # 확대 정도 설정(3 ~ 21). 
   maptype = c("roadmap") # 지도 형태 설정("terrain", "satellite", "roadmap", and "hybrid")
 ) 
@@ -83,8 +83,44 @@ ggsave("180722_Boston_Plot.png", plot = bostonPlot,  dpi = 600) # plot 저장
 
 ![Boston Plot Result]
 
-[Boston Plot Result]: 180722_Boston_Plot.png
+[Boston Plot Result]: 180728_Boston_Plot.png
 
 
 ### [2] Sub Area: Europe
-> 작성중입니다...
+#### [2-1] London Plotting
+
+```
+europe <- gpsData[subEurope,] # Europe data 추출
+
+london <- europe[which(europe$latitude>50),]
+londonLabel <- london[c(1,nrow(london)),]
+
+nudgeX <- (max(london$longitude) - min(london$longitude))*0.1
+nudgeY <- (max(london$latitude) - min(london$latitude))*0.1
+
+mapImageData <- get_googlemap(
+  center = c(lon = (min(london$longitude) + nudgeX*5), lat = (min(london$latitude) + nudgeY*5)),
+  zoom = 10,
+  maptype = c("roadmap")
+)
+
+londonPlot <- ggmap(mapImageData) + 
+              geom_point(aes(x = london$longitude, y = london$latitude, color=london$time), 
+                        data=london, size = 5, pch = 20) + 
+              ggtitle(paste0("London GPS Plot\n", londonLabel$date[1], " ~ ", londonLabel$date[2])) +
+              labs(x = "Longitude(경도)", y = "Latitude(위도)", color = "Date") +
+              geom_label(aes(x=londonLabel$longitude, y=londonLabel$latitude, label = c("S", "E")), 
+                         data=londonLabel, nudge_x = nudgeX, nudge_y = nudgeY) +
+              theme(legend.position = "none", 
+                    plot.title = element_text(family = "serif", face = "bold", hjust = 0.5, size = 13, color = "darkblue")) +
+              scale_color_gradient(low = "black", high = "red")
+
+ggsave("180728_London_Plot.png", plot = londonPlot,  dpi = 600)
+```
+
+![London Plot Result]
+
+[London Plot Result]: 180728_London_Plot.png
+
+
+

@@ -1,0 +1,101 @@
+rm(list = ls())
+library(dplyr)
+library(plotly)
+
+x1 <- rnorm(50, 10, 1)
+x2 <- rnorm(50, 20, 1)
+x3 <- rnorm(50, 30, 1)
+y1 <- rnorm(50, 20, 1)
+y2 <- rnorm(50, 10, 1)
+y3 <- rnorm(50, 30, 1)
+
+x <- c(x1, x2, x3)
+y <- c(y1, y2, y3)
+
+data <- data.frame(x = x, y = y)
+
+rm(x1, x2, x3, y1, y2, y3, x, y)
+
+plot_ly(data, x = ~x, y = ~y)
+
+
+graph <- function(x){
+  dataW <- data.frame(matrix(unlist(apply(weight, 3, data.frame)), ncol = ncol(data), byrow = F))
+  colnames(dataW) <- c("x", "y")
+  dataW$class <- "neuron"
+  
+  plot_ly(data.frame(dataStand), x = ~x, y = ~y, type = "scatter") %>%
+    add_trace(data = dataW, x = ~x, y = ~y, color = ~class, type = "scatter")
+  
+}
+
+
+#################################
+#### 초기값 설정  
+dimension <- 4
+weight <- array(data = runif(n = dimension^2 * ncol(data)), 
+                dim = c(dimension, dimension, ncol(data))) ## (output-di, output-di, input-di)
+
+
+iteration <- 4000 ## 반복 횟수
+alphaInit <- 0.01 ## 초기 학습률
+radiusInit <- max(dimension)/2 ## 초기 이웃 반경 - 기본적으로 weight dimension(height, width) 중 큰 값의 절반으로 함반
+timeConstant <- iteration / log(radiusInit) ## 초기 시간 상수 
+
+#### data 정규화
+
+dataStand <- apply(data, 2, function(x){
+  (x - min(x)) / (max(x) - min(x))
+})
+
+graph()
+
+
+##### iteration 만큼 반복 
+for(count in 1:iteration){
+  
+  #### 데이터 1개를 랜덤 추출하여 training
+  
+  train <- dataStand[sample(x = 1:nrow(dataStand), size = 1), ]
+  
+  #### 추출한 학습 데이터와 가장 근접한 뉴런 선택
+  
+  distN <- weight - array(data = rep(train, each = dimension * dimension), 
+                          dim = c(dimension, dimension, ncol(data))) ## w - x
+  distN2 <- apply(distN ^ 2 , c(1, 2), sum)
+  
+  ## weight에 있는 neuron(BMU) 값 
+  BMU <- apply(weight, 3, function(x){ 
+    as.vector(x)[which.min(distN2)]
+  })
+  
+  #### radius, alpha 업데이트
+  
+  radius <- radiusInit * exp(- count / timeConstant)
+  alpha <- alphaInit * exp(- count / iteration)
+  
+  #### neuron을 중심으로 radius 근처에 있는 뉴론들의 weight 수정
+  
+  distR <- weight - array(data = rep(BMU, each = dimension * dimension), 
+                          dim = c(dimension, dimension, ncol(data))) ## 반경거리 계산
+  distR <- distR ^ 2
+  distR <- apply(distR, c(1, 2), sum)
+
+  neuronR <- array(distR <= radius,
+                   dim = c(dimension, dimension, ncol(data))) ## weight <= radius에 있는 neuron
+  
+  theta <- array(exp( - distR / (2 * radius ^ 2)),
+                 dim = c(dimension, dimension, ncol(data))) ## neighborhood function 
+  
+  weight[neuronR] <- (weight + (alpha * theta * distN))[neuronR] ## weight 수정 
+  
+  
+}
+  
+graph()
+
+s
+
+
+
+which.max(weight[, , ])

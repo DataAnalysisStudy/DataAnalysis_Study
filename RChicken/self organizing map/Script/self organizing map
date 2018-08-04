@@ -1,46 +1,82 @@
 rm(list = ls())
 library(dplyr)
 library(plotly)
+library(igraph)
 
-x1 <- rnorm(50, 10, 1)
-x2 <- rnorm(50, 20, 1)
-x3 <- rnorm(50, 30, 1)
+x1 <- rnorm(50, 10, 2)
+x2 <- rnorm(50, 20, 2)
+x3 <- rnorm(50, 30, 2)
+x4 <- rnorm(50, 40, 2)
+x5 <- rnorm(50, 20, 2)
 y1 <- rnorm(50, 20, 1)
 y2 <- rnorm(50, 10, 1)
 y3 <- rnorm(50, 30, 1)
+y4 <- rnorm(50, 10, 1)
+y5 <- rnorm(50, 40, 1)
 
-x <- c(x1, x2, x3)
-y <- c(y1, y2, y3)
+x <- c(x1, x2, x3, x4, x5)
+y <- c(y1, y2, y3, y4, y5)
 
 data <- data.frame(x = x, y = y)
 
-rm(x1, x2, x3, y1, y2, y3, x, y)
+rm(x1, x2, x3, x4, x5, y1, y2, y3, y4, y5, x, y)
 
 plot_ly(data, x = ~x, y = ~y)
 
+################################
+
+################
 
 graph <- function(x){
+  
+  weightEdge <- data.frame(from = rep(1:dimension^2, 4), 
+                           to = c(1:dimension^2 - 1, 1:dimension^2 + 1, 1:dimension^2 + dimension, 1:dimension^2 - dimension))
+  weightEdge <- weightEdge[weightEdge$to >= 1 & weightEdge$to <= dimension^2, ]
+  weightEdge <- weightEdge[!(weightEdge$from %% dimension == 0 & weightEdge$to %% dimension == 1), ]
+  weightEdge <- weightEdge[!(weightEdge$from %% dimension == 1 & weightEdge$to %% dimension == 0), ]
+  
+  edge_shapes <- list()
+  for(i in 1:nrow(weightEdge)) {
+    
+    edge_shape = list(
+      type = "line",
+      line = list(color = "darkOrange", width = 0.3),
+      x0 = as.vector(weight[, , 1])[weightEdge[i, "from"]],
+      y0 = as.vector(weight[, , 2])[weightEdge[i, "from"]],
+      x1 = as.vector(weight[, , 1])[weightEdge[i, "to"]],
+      y1 = as.vector(weight[, , 2])[weightEdge[i, "to"]]
+    )
+    
+    edge_shapes[[i]] <- edge_shape
+  }
+  
   dataW <- data.frame(matrix(unlist(apply(weight, 3, data.frame)), ncol = ncol(data), byrow = F))
   colnames(dataW) <- c("x", "y")
   dataW$class <- "neuron"
   
   plot_ly(data.frame(dataStand), x = ~x, y = ~y, type = "scatter") %>%
-    add_trace(data = dataW, x = ~x, y = ~y, color = ~class, type = "scatter")
+    add_trace(data = dataW, x = ~x, y = ~y, color = ~class, type = "scatter") %>%
+    layout(shapes = edge_shapes)
   
 }
 
 
 #################################
 #### 초기값 설정  
-dimension <- 4
-weight <- array(data = runif(n = dimension^2 * ncol(data)), 
+dimension <- 6
+
+weight <- array(data = c(rep(seq(from = 0.1, to = 0.9, length.out = dimension), dimension),
+                         rep(seq(from = 0.1, to = 0.9, length.out = dimension), each = dimension)),
                 dim = c(dimension, dimension, ncol(data))) ## (output-di, output-di, input-di)
 
+# weight <- array(data = runif(n = dimension^2 * ncol(data)), 
+#                 dim = c(dimension, dimension, ncol(data))) 
 
 iteration <- 4000 ## 반복 횟수
 alphaInit <- 0.01 ## 초기 학습률
 radiusInit <- max(dimension)/2 ## 초기 이웃 반경 - 기본적으로 weight dimension(height, width) 중 큰 값의 절반으로 함반
-timeConstant <- iteration / log(radiusInit) ## 초기 시간 상수 
+# timeConstant <- iteration / log(radiusInit) ## 초기 시간 상수 
+
 
 #### data 정규화
 
@@ -60,42 +96,36 @@ for(count in 1:iteration){
   
   #### 추출한 학습 데이터와 가장 근접한 뉴런 선택
   
-  distN <- weight - array(data = rep(train, each = dimension * dimension), 
-                          dim = c(dimension, dimension, ncol(data))) ## w - x
+  distN <- -(weight - array(data = rep(train, each = dimension * dimension), 
+                            dim = c(dimension, dimension, ncol(data)))) ## x - w
   distN2 <- apply(distN ^ 2 , c(1, 2), sum)
-  
+ 
   ## weight에 있는 neuron(BMU) 값 
   BMU <- apply(weight, 3, function(x){ 
     as.vector(x)[which.min(distN2)]
   })
   
   #### radius, alpha 업데이트
-  
-  radius <- radiusInit * exp(- count / timeConstant)
   alpha <- alphaInit * exp(- count / iteration)
+  # radius <- radiusInit * exp(- 2 * radiusInit * count / iteration)  
+  radius <- 0.1
   
   #### neuron을 중심으로 radius 근처에 있는 뉴론들의 weight 수정
   
-  distR <- weight - array(data = rep(BMU, each = dimension * dimension), 
-                          dim = c(dimension, dimension, ncol(data))) ## 반경거리 계산
-  distR <- distR ^ 2
-  distR <- apply(distR, c(1, 2), sum)
-
-  neuronR <- array(distR <= radius,
+  distR <- -(weight - array(data = rep(BMU, each = dimension * dimension), 
+                            dim = c(dimension, dimension, ncol(data)))) ## 반경거리 계산
+  distR2 <- distR ^ 2
+  distR2 <- apply(distR2, c(1, 2), sum)
+  
+  neuronR <- array(distR2 <= radius,
                    dim = c(dimension, dimension, ncol(data))) ## weight <= radius에 있는 neuron
   
-  theta <- array(exp( - distR / (2 * radius ^ 2)),
+  theta <- array(exp( - distR2 / (2 * radius ^ 2)),
                  dim = c(dimension, dimension, ncol(data))) ## neighborhood function 
   
   weight[neuronR] <- (weight + (alpha * theta * distN))[neuronR] ## weight 수정 
   
-  
 }
-  
+
 graph()
 
-s
-
-
-
-which.max(weight[, , ])

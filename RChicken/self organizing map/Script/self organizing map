@@ -63,7 +63,7 @@ graph <- function(x){
 
 #################################
 #### 초기값 설정  
-dimension <- 4
+dimension <- 6
 
 weight <- array(data = c(rep(seq(from = 0.1, to = 0.9, length.out = dimension), dimension),
                          rep(seq(from = 0.1, to = 0.9, length.out = dimension), each = dimension)),
@@ -101,28 +101,36 @@ for(count in 1:iteration){
   distN2 <- apply(distN ^ 2 , c(1, 2), sum)
  
   ## weight에 있는 neuron(BMU) 값 
-  BMU <- apply(weight, 3, function(x){ 
-    as.vector(x)[which.min(distN2)]
+  BMU <- list(index = which.min(distN2))
+  BMU$value <- apply(weight, 3, function(x){ 
+    as.vector(x)[BMU$index]
   })
+  BMU$index <- c(ifelse(BMU$index %% dimension != 0, BMU$index %% dimension, dimension),
+                 ifelse(BMU$index %% dimension != 0, (BMU$index %/% dimension) + 1, BMU$index %/% dimension))
   
   #### radius, alpha 업데이트
   alpha <- alphaInit * exp(- count / iteration)
-  # radius <- radiusInit * exp(- 2 * radiusInit * count / iteration)
-  # radius <- 0.1
-  radius <- ceiling(0.6 * dimension ^ 2 * ((iteration - count) / iteration) + 0.00001 ) ## 60%일때 선택 
+  radius <- radiusInit * exp(- 2 * radiusInit * count / iteration)
+  # radius <- ceiling(0.6 * dimension ^ 2 * ((iteration - count) / iteration) + 0.00001 ) ## 60%일때 선택 
   
   #### neuron을 중심으로 radius 근처에 있는 뉴론들의 weight 수정
   
-  distR <- -(weight - array(data = rep(BMU, each = dimension * dimension), 
-                            dim = c(dimension, dimension, ncol(data)))) ## 반경거리 계산
+  distR <- array(c(ifelse(1:dimension^2 %% dimension != 0, 1:dimension^2 %% dimension, dimension),
+                     ifelse(1:dimension^2 %% dimension != 0, 
+                            (1:dimension^2 %/% dimension) + 1, 
+                            1:dimension^2 %/% dimension)),
+                 dim = c(dimension, dimension, ncol(data))) - 
+    array(data = rep(BMU$index, each = dimension * dimension), 
+          dim = c(dimension, dimension, ncol(data))) ## 반경거리 계산
+
   distR2 <- distR ^ 2
   distR2 <- apply(distR2, c(1, 2), sum)
 
-  # neuronR <- array(distR2 <= radius,
-  #                  dim = c(dimension, dimension, ncol(data))) ## weight <= radius에 있는 neuron
+  neuronR <- array(distR2 <= radius^2,
+                   dim = c(dimension, dimension, ncol(data))) ## weight <= radius에 있는 neuron
   
-  neuronR <- array(distR2 <= sort(distR2)[radius],
-                   dim = c(dimension, dimension, ncol(data))) ## 60%~ 1개 neuron 선택 
+  # neuronR <- array(distR2 <= sort(distR2)[radius],
+  #                  dim = c(dimension, dimension, ncol(data))) ## 60%~ 1개 neuron 선택 
   
   theta <- array(exp( - distR2 / (2 * radius ^ 2)),
                  dim = c(dimension, dimension, ncol(data))) ## neighborhood function 

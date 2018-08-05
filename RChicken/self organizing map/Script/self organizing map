@@ -63,11 +63,17 @@ graph <- function(x){
 
 #################################
 #### 초기값 설정  
-dimension <- 6
+dimension <- 5
 
 weight <- array(data = c(rep(seq(from = 0.1, to = 0.9, length.out = dimension), dimension),
                          rep(seq(from = 0.1, to = 0.9, length.out = dimension), each = dimension)),
                 dim = c(dimension, dimension, ncol(data))) ## (output-di, output-di, input-di)
+
+weightIndex <- array(c(ifelse(1:dimension^2 %% dimension != 0, 1:dimension^2 %% dimension, dimension),
+                       ifelse(1:dimension^2 %% dimension != 0, 
+                              (1:dimension^2 %/% dimension) + 1, 
+                              1:dimension^2 %/% dimension)),
+                     dim = c(dimension, dimension, ncol(data)))
 
 # weight <- array(data = runif(n = dimension^2 * ncol(data)), 
 #                 dim = c(dimension, dimension, ncol(data))) 
@@ -115,14 +121,8 @@ for(count in 1:iteration){
   
   #### neuron을 중심으로 radius 근처에 있는 뉴론들의 weight 수정
   
-  distR <- array(c(ifelse(1:dimension^2 %% dimension != 0, 1:dimension^2 %% dimension, dimension),
-                     ifelse(1:dimension^2 %% dimension != 0, 
-                            (1:dimension^2 %/% dimension) + 1, 
-                            1:dimension^2 %/% dimension)),
-                 dim = c(dimension, dimension, ncol(data))) - 
-    array(data = rep(BMU$index, each = dimension * dimension), 
-          dim = c(dimension, dimension, ncol(data))) ## 반경거리 계산
-
+  distR <- weightIndex - array(data = rep(BMU$index, each = dimension * dimension), 
+                               dim = c(dimension, dimension, ncol(data))) ## 반경거리 계산
   distR2 <- distR ^ 2
   distR2 <- apply(distR2, c(1, 2), sum)
 

@@ -68,6 +68,7 @@ write.csv(newsTop,"newsA1Top.csv")   # csv 파일로 저장합니다. 디렉토�
 
 #### [1] 앱 리뷰 크롤링
 > 예시로 STEPS 앱 리뷰 크롤링을 진행
+
 > ※ 사이트: https://play.google.com/store/apps/details?id=plus.steps.sapp&showAllReviews=true
 ```
 library(rvest)
@@ -156,6 +157,7 @@ melonResult <- data.frame(Song=songNames, Singer=songSingers, Url=paste0("https:
 
 #### [2] 멜론 노래 가사 크롤링
 > 위의 [1]에서 수집한 Top 100 리스트의 모든 가사 수집 (1번 코드 우선 실행 필수) 
+
 > ※ 예시 가사(레드벨벳의 Power Up) 사이트: https://www.melon.com/song/detail.htm?songId=31230093
 ```
 ch=wdman::chrome(port=4567L) #크롬드라이버를 포트 4567번에 배정

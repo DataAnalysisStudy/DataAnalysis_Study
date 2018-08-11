@@ -1,0 +1,117 @@
+rm(list = ls())
+
+########## Cluster 수 찾기 - 실루엣
+findCluster <- function(data, nc = 15){
+
+  sil <- 1:nc
+  
+  for(i in 2:nc){
+    
+    pamResult <- pam(data = data, k = i)
+    di <- as.data.frame(as.matrix(dist(data)))
+      
+    clusterMean <- t(apply(di, 2, function(dataOne){ ## 전체 data의 군집간 거리 평균 반환 
+      tapply(dataOne, pamResult$cluster, mean)
+    }))
+      
+    silhouette <- data.frame(t(apply(cbind(clusterMean, pamResult$cluster), 1, function(dataOne){
+      
+      cluster <- dataOne[length(dataOne)]
+      dataOne <- dataOne[-length(dataOne)]
+      ai <- dataOne[cluster]
+      bi <- min(dataOne[-cluster])
+      value <- (bi - ai) / max(ai, bi)
+      c(ai, bi, value)
+      
+    })))
+    
+    colnames(silhouette) <- c("ai", "bi", "value")
+      
+    silhouette <- silhouette %>%
+      mutate(cluster = as.factor(pamResult$cluster)) %>%
+      arrange(cluster, value) %>%
+      mutate(index = 1:length(cluster))
+    
+    sil[i] <- mean(silhouette$value)
+    
+    plot_ly(silhouette, type = "bar",
+            x = ~value, y = ~index, color = ~cluster, orientation = 'h') %>%
+      add_trace(x = mean(silhouette$value), type = 'scatter', color = "mean", mode = "lines")
+    
+  }
+  
+  mflow
+  plot(2:nc, sil[2:nc], type = 'b', ylim = c(0, 1))
+  
+}
+
+data <- iris[, 1:4]
+k = 3
+########## paritioning around medoids 알고리즘
+
+pam <- function(data, k){
+  
+  ######## 초기값 설정 
+  
+  index <- sort(sample(1:nrow(data), k))
+  di <- as.data.frame(as.matrix(dist(data)))
+  di <- di[, index]
+  cluster <- as.vector(apply(di, 1, which.min))
+  center <- as.data.frame(matrix(0, nrow = k, ncol = length(data)))
+  colnames(center) <- colnames(data)
+  wss <- as.numeric()
+  wssNew <- 0
+  
+  for(i in 1:k){
+    wssTemp <- di[cluster == i, i]
+    wss <- c(wss, sum(wssTemp))
+    rm(wssTemp)
+  }
+  
+  # plot_ly(data, x = ~Sepal.Length, y = ~Petal.Length, color = as.factor(cluster))
+  # plot_ly(data, x = ~Sepal.Length, y = ~Petal.Length, z = ~Petal.Width, color = as.factor(cluster))
+  
+  ##### 분류된 클러스터로 재반복 실시 
+  count = 0
+  while(sum(wssNew) < sum(wss)){
+    
+    if(count != 0){
+      wss <- wssNew
+      cluster <- clusterNew
+    }
+    
+    for(centerCol in 1:ncol(data)){
+      center[, centerCol] <- tapply(data[, centerCol], cluster, function(x) quantile(x, 0.5))
+    }
+    
+    di <- as.data.frame(as.matrix(dist(rbind(center, data))))
+    di <- di[-c(1:k), 1:k]
+    
+    clusterNew <- as.vector(apply(di, 1, which.min))
+    wssNew <- as.numeric()
+    
+    for(i in 1:k){
+      wssTemp <- di[clusterNew == i, i]
+      wssNew <- c(wssNew, sum(wssTemp))
+      rm(wssTemp)
+    }
+    
+    count <- count + 1
+    
+  }
+  
+  wssMean = wss/tapply(cluster, cluster, length)
+  
+  return(list(cluster = cluster, wss = wss, wssMean = wssMean, center = center, count = count))
+  
+}
+
+pamResult <- pam(data, k)
+
+library(plotly)
+plot_ly(data, x = ~Sepal.Length, y = ~Petal.Length, color = as.factor(pamResult$cluster))
+plot_ly(data, x = ~Sepal.Length, y = ~Petal.Width, color = as.factor(pamResult$cluster))
+plot_ly(data, x = ~Sepal.Length, y = ~Sepal.Width, z = ~Petal.Width, color = as.factor(pamResult$cluster))
+plot_ly(data, x = ~Petal.Length, y = ~Petal.Width, z = ~Sepal.Length, color = as.factor(pamResult$cluster))
+
+table(pamResult$cluster, iris$Species)
